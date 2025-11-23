@@ -1,37 +1,41 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { api } from "../services/api";
+
+interface Vaga {
+  id: number;
+  titulo: string;
+  empresa: string;
+  local: string;
+  tipo: string;
+  requisitos: string[];
+}
 
 export default function Vagas() {
-  const vagas = [
-    {
-      id: 1,
-      titulo: "Desenvolvedor Front-End Jr",
-      empresa: "TechSolutions",
-      local: "São Paulo, SP",
-      tipo: "Estágio",
-      requisitos: ["React", "JavaScript", "CSS"],
-    },
-    {
-      id: 2,
-      titulo: "Assistente de Suporte Técnico",
-      empresa: "InfoHelp",
-      local: "Remoto",
-      tipo: "CLT",
-      requisitos: ["Hardware", "Atendimento", "Linux"],
-    },
-    {
-      id: 3,
-      titulo: "UX/UI Designer",
-      empresa: "CreativeLab",
-      local: "Curitiba, PR",
-      tipo: "Freelancer",
-      requisitos: ["Figma", "Prototipação", "Layout"],
-    },
-  ];
-
+  const [vagas, setVagas] = useState<Vaga[]>([]);
   const [busca, setBusca] = useState("");
   const [filtroTipo, setFiltroTipo] = useState("Todos");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    setError(null);
+    (async () => {
+      try {
+        const response = await api.get("/vagas");
+        if (mounted) setVagas(response.data);
+      } catch (err) {
+        console.error("Erro ao buscar vagas:", err);
+        if (mounted) setError("Erro ao carregar vagas.");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
 
   const vagasFiltradas = vagas.filter((vaga) => {
     const matchBusca =
@@ -79,6 +83,9 @@ export default function Vagas() {
         </select>
       </div>
 
+      {loading && <p>Carregando vagas...</p>}
+      {error && <p className="text-red-400">{error}</p>}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {vagasFiltradas.map((vaga) => (
           <motion.div
@@ -124,7 +131,7 @@ export default function Vagas() {
         ))}
       </div>
 
-      {vagasFiltradas.length === 0 && (
+      {vagasFiltradas.length === 0 && !loading && (
         <p className="text-center text-gray-500 dark:text-gray-400 mt-10">
           Nenhuma vaga encontrada. Tente outro termo ou filtro.
         </p>

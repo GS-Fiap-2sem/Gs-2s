@@ -1,19 +1,52 @@
 import { useParams, Link } from "react-router-dom";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { api } from "../services/api";
 
 export default function Aplicar() {
   const { id } = useParams();
   const [file, setFile] = useState<File | null>(null);
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
+  const [mensagem, setMensagem] = useState("");
 
   function handleFile(e: any) {
     setFile(e.target.files[0]);
   }
 
-  function handleSubmit(e: any) {
+  async function handleSubmit(e: any) {
     e.preventDefault();
-    setSent(true);
+    setError(null);
+    if (!id) {
+      setError("ID da vaga inválido.");
+      return;
+    }
+    if (!file) {
+      setError("Envie um arquivo PDF.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("nome", nome);
+      formData.append("email", email);
+      formData.append("mensagem", mensagem);
+      formData.append("curriculo", file);
+      
+      await api.post(`/vagas/${id}/candidaturas`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      setSent(true);
+    } catch (err) {
+      console.error(err);
+      setError("Erro ao enviar candidatura. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   if (sent) {
@@ -48,17 +81,17 @@ export default function Aplicar() {
       <motion.form onSubmit={handleSubmit} className="p-10 rounded-2xl bg-white/10 dark:bg-black/30 backdrop-blur-xl shadow-xl border border-white/20" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}>
         <label className="block mb-6 text-gray-200 font-medium">
           Nome completo
-          <input required type="text" className="w-full mt-2 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Seu nome" />
+          <input required value={nome} onChange={(e) => setNome(e.target.value)} type="text" className="w-full mt-2 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Seu nome" />
         </label>
 
         <label className="block mb-6 text-gray-200 font-medium">
           Email
-          <input required type="email" className="w-full mt-2 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="seuemail@gmail.com" />
+          <input required value={email} onChange={(e) => setEmail(e.target.value)} type="email" className="w-full mt-2 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="seuemail@gmail.com" />
         </label>
 
         <label className="block mb-6 text-gray-200 font-medium">
           Mensagem para a empresa
-          <textarea required rows={4} className="w-full mt-2 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Fale sobre seu interesse, experiência e motivação..." />
+          <textarea required value={mensagem} onChange={(e) => setMensagem(e.target.value)} rows={4} className="w-full mt-2 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Fale sobre seu interesse, experiência e motivação..." />
         </label>
 
         <div className="mb-8 text-gray-200 font-medium">
@@ -72,8 +105,10 @@ export default function Aplicar() {
           )}
         </div>
 
-        <motion.button whileTap={{ scale: 0.97 }} className="w-full py-3 mt-4 rounded-lg bg-gradient-to-r from-indigo-500 to-blue-600 text-white font-semibold shadow-lg hover:from-indigo-600 hover:to-blue-700">
-          Enviar candidatura
+        {error && <p className="text-sm text-red-400 mb-3">{error}</p>}
+
+        <motion.button whileTap={{ scale: 0.97 }} disabled={loading} className="w-full py-3 mt-4 rounded-lg bg-gradient-to-r from-indigo-500 to-blue-600 text-white font-semibold shadow-lg hover:from-indigo-600 hover:to-blue-700 disabled:opacity-60">
+          {loading ? "Enviando..." : "Enviar candidatura"}
         </motion.button>
       </motion.form>
 

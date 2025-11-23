@@ -5,11 +5,11 @@ import Dashboard from "./pages/Dashboard";
 import FAQ from "./pages/FAQ";
 import Integrantes from "./pages/Integrantes";
 import Sobre from "./pages/Sobre";
-import VagaDetalhe from "./pages/VagaDetalhe";
-import Login from "./pages/Login"; 
-import Cadastro from "./pages/Cadastro";
-import Vagas from "./pages/Vagas";
-import Aplicar from "./pages/Aplicar";
+import VagaDetalhe from "./pages/vagadetalhe";
+import Login from "./pages/login"; 
+import Cadastro from "./pages/cadastro";
+import Vagas from "./pages/vagas";
+import Aplicar from "./pages/aplicar";
 
 import PainelPremium from "./pages/PainelPremium";
 
