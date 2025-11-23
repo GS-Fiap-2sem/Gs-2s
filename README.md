@@ -177,3 +177,5 @@ Links:
 --github:https://github.com/GS-Fiap-2sem/Gs-2s
 
 --Api ultilisada:https://dashboard.render.com/web/srv-d4h574h5pdvs73913a10/deploys/dep-d4h8199r0fns73975m80?r=2025-11-23%4003%3A32%3A58~2025-11-23%4003%3A38%3A33
+
+--deploy https://vercel.com/luanpmrs-projects/deply/Hczd4MUroSp9u5ArADQehaRX5bnP
