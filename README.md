@@ -83,6 +83,9 @@ Passos:
 
 "git clone https://github.com/seu-repositorio/skillbridge.git"
 
+*Abra o termina e abra a pagina Front_gs
+
+"cd Front_gs"
 
 *Instale as dependências:
 
